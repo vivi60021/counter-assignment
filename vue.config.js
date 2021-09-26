@@ -1,6 +1,6 @@
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-        ? '/counter/'
+        ? '/counter-assignment/'
         : '/',
     chainWebpack: config => {
         config.module
