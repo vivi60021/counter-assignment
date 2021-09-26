@@ -1,0 +1,115 @@
+@use 'variables'
+body
+    font-family: Arial
+    letter-spacing: 2px
+html,body,div,h1,h2,h3,h4,h5,h6,img
+    margin: 0
+    pading: 0
+    border: 0
+div
+    display: block
+a
+    color: white
+    text-decoration: none
+.table-counter
+    display: block
+    margin: 5px
+    width: calc(100vw - 100px)
+    max-height: calc(100vh - 150px)
+    border-collapse: collapse
+    font-size: 12px
+    overflow: scroll
+    & thead
+        z-index: 2
+        background: white
+        position: sticky
+        top: 0
+        left: 0
+    & thead tr th
+        border-bottom: 2px solid variables.$table-border
+        text-align: left
+        font-weight: bold
+    & tbody tr
+        border-bottom: 1px solid variables.$table-border
+    & tbody td
+        padding: 10px 0
+    & tbody
+        max-width: 100%
+        overflow-x: auto
+    & th:nth-child(1), th:nth-child(2),td:nth-child(1), td:nth-child(2)
+        position: sticky
+        z-index: 1
+        background-color: white
+button:disabled
+    background: variables.$disabled
+header
+    font-size: 25px
+    font-weight: bold
+    padding-top: 15px
+    margin-bottom: 20px
+aside
+    position: absolute
+    height: 100%
+    width: 60px
+    background: variables.$primary
+    color: white
+    text-align: center
+    & .material-icons
+        font-size: 40px
+.container
+    margin: 10px
+    margin-left: 70px
+.full-screen
+    height: 100vh
+    width: 100vw
+    z-index: 6000
+.fixed-full
+    position: fixed
+    top: 0
+    bottom: 0
+    right: 0
+    left: 0
+.absolute-bottom
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+.text-ellipsis
+    height: 100%
+    line-height: 2
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+    display: -webkit-box
+    -webkit-line-clamp: 1
+    -webkit-box-orient: vertical
+    white-space: normal
+.space
+    flex-grow: 1
+.row
+    display: flex
+    flex-wrap: wrap
+.column
+    display: flex
+    flex-wrap: wrap
+    flex-direction: column
+.margin-auto
+    margin: 10px
+.chip
+    margin: 1px
+    padding: 1px 3px
+    text-align: center
+    border: 1px solid variables.$secondary
+    border-radius: 50%
+.button-primary
+    background: variables.$primary
+    padding: 10px
+    color: white
+    border: 0
+.button-secondary
+    background: variables.$secondary
+    padding: 10px
+    color: black
+    border: 0
+.material-icons
+    margin: 5px
