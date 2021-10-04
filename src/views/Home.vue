@@ -36,16 +36,9 @@
       </tbody>
     </table>
     <div class="row margin-auto">
-      waitings:{{ waitings }}
+      waitings:{{ waitings.length }}
       <div class="space"></div>
-      <button
-        class="button-primary"
-        type="button"
-        @click.prevent="
-          next += 1;
-          SetCounter();
-        "
-      >
+      <button class="button-primary" type="button" @click.prevent="SetCounter">
         NEXT {{ next }}
       </button>
     </div>
@@ -55,6 +48,7 @@
 <script>
 import { reactive } from "vue";
 import _ from "lodash";
+import { Subject } from "rxjs";
 import counterMixin from "../mixins/counter";
 export default {
   name: "Home",
@@ -66,56 +60,68 @@ export default {
   data() {
     return {
       processed: 0,
-      waitings: 0,
+      waitings: [],
       next: 1,
+      counter_subject: null,
+      waitings_subject: null,
+      processing: [],
+      counter_available: [],
     };
   },
   setup() {
     const counter = reactive({});
     return {
-      counter, // 导出响应式数组
+      counter,
     };
   },
   methods: {
     GetCounter() {
-      let arr = _.split(this.counter_name, ",");
-      _.forEach(arr, (name, index) => {
+      this.counter_available = _.split(this.counter_name, ",");
+      _.forEach(this.counter_available, (name, index) => {
         this.counter[name] = reactive({
           index: index + 1,
           processing: null,
           processed: [],
         });
       });
+      this.SetSubject();
     },
-    async SetCounter() {
-      let keys = _.keys(this.counter);
-      let idle_index = _.findIndex(
-        _.values(this.counter),
-        (item) => item.processing == null
-      );
-      if (idle_index > -1) {
-        this.counter[keys[idle_index]].processing =
-          this.next - this.waitings - 1;
-        await this.SetProcessing(keys[idle_index]).then(async (v) => {
-          if (!v) await this.SetCounter();
-        });
-      } else {
-        this.waitings += 1;
-      }
-    },
-    async SetProcessing(name) {
-      return new Promise((resolve) => {
-        let me = this;
-        setTimeout(() => {
-          me.counter[name].processed.push(this.counter[name].processing);
-          me.counter[name].processing = null;
-          if (me.waitings > 0) {
-            me.waitings -= 1;
-            resolve(false);
-          }
-          resolve(true);
-        }, Math.random() * 1000 + 500);
+    SetSubject() {
+      let subject = new Subject(null);
+      this.counter_subject = subject.subscribe({
+        next: (v) => {
+          let index = this.counter_available.findIndex((i) => i == v);
+          if (index > -1) this.counter_available.splice(index, 1);
+          else this.counter_available.push(v);
+        },
       });
+      this.waitings_subject = subject.subscribe({
+        next: (v) => {
+          let index = this.waitings.findIndex((i) => i == v);
+          if (index > -1) this.waitings.splice(index, 1);
+          else this.waitings.push(v);
+        },
+      });
+    },
+    SetCounter() {
+      if (this.counter_available.length > 0) {
+        this.SetProcessing(this.counter_available[0], this.next);
+        this.counter_subject.next(this.counter_available[0]);
+      } else this.waitings_subject.next(this.next);
+      this.next += 1;
+    },
+    SetProcessing(name, num) {
+      let me = this;
+      this.counter[name].processing = num;
+      setTimeout(() => {
+        me.counter[name].processed.push(this.counter[name].processing);
+        me.counter[name].processing = null;
+        if (me.waitings.length > 0) {
+          me.counter[name].processing = me.waitings[0];
+          me.SetProcessing(name, me.waitings[0]);
+          me.waitings_subject.next(me.waitings[0]);
+        } else me.counter_subject.next(name);
+      }, Math.random() * 1000 + 500);
     },
   },
 };
